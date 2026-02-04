@@ -123,8 +123,10 @@ final class FJS_REST {
         $params = [];
         $params['q'] = sanitize_text_field((string)$req->get_param('q'));
         $params['w'] = sanitize_text_field((string)$req->get_param('w'));
+        $cat_raw = $req->get_param('cat');
+        $has_cat = ($cat_raw !== null && $cat_raw !== '');
 
-        if (($params['w'] ?? '') === '' && ($params['q'] ?? '') === '') {
+        if (($params['w'] ?? '') === '' && ($params['q'] ?? '') === '' && !$has_cat) {
             return new WP_REST_Response(['error' => 'missing_required'], 400);
         }
 

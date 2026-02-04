@@ -3,7 +3,7 @@ Contributors: benwelby
 Tags: jobs, recruitment, dwp, search, api
 Requires at least: 6.0
 Tested up to: 6.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,6 +16,7 @@ This plugin allows your WordPress site to search the DWP Find a Job API. It disp
 **Features:**
 
 *   Search interface shortcode `[findajob_search]`.
+*   **Customizable Search Forms:** Use the built-in Shortcode Generator to tailor the search widget (e.g., restrict to "Social Care" jobs, hide fields, or redirect results to a specific page).
 *   Connects to the official DWP Find a Job API.
 *   Caches results for performance.
 *   Automatically creates custom post types for job listings.
@@ -27,8 +28,20 @@ This plugin allows your WordPress site to search the DWP Find a Job API. It disp
 2.  In your WordPress admin dashboard, go to **Plugins > Add New > Upload Plugin**.
 3.  Choose the downloaded ZIP file and click **Install Now**.
 4.  Activate the plugin.
-5.  Go to the plugin settings page to configure your API ID and Key (obtained from the DWP Find a Job service).
-6.  Add the `[findajob_search]` shortcode to any page to display the search form.
+5.  Go to **Settings > Jobs Searcher** to configure your API ID and Key.
+6.  Use the **Shortcode Generator** at the bottom of the settings page to create your search widget, or simply add `[findajob_search]` to any page.
+
+== Shortcode Options ==
+
+You can customize the `[findajob_search]` shortcode with the following attributes:
+
+*   `cat`: The default category ID (e.g., `177` for Social Care).
+*   `fields`: A comma-separated list of visible fields (e.g., `q,w,d`). Available fields: `q` (Keywords), `w` (Location), `d` (Radius), `cat` (Category), `cti` (Hours), `cty` (Contract), `sf` (Salary).
+*   `url`: The URL to submit the search to (leave empty to show results on the current page).
+
+**Example:**
+`[findajob_search cat="177" fields="w,d" url="/job-results"]`
+*Creates a search form restricted to "Social Care" jobs, showing only Location and Radius fields, submitting to `/job-results`.*
 
 == Frequently Asked Questions ==
 
@@ -38,14 +51,20 @@ Yes, you need to register with the DWP Find a Job service to obtain an API ID an
 
 = How do I display the search form? =
 
-Simply add the shortcode `[findajob_search]` to any page or post.
+Simply add the shortcode `[findajob_search]` to any page or post. Check the settings page for a generator tool.
 
 == Screenshots ==
 
 1.  The job search interface.
 2.  A single job listing page.
+3.  The Admin Shortcode Generator.
 
 == Changelog ==
+
+= 1.1.0 =
+*   Added Shortcode Generator in Admin Settings.
+*   Added `cat`, `fields`, and `url` attributes to the shortcode.
+*   Added Category dropdown to the search form.
 
 = 1.0.0 =
 *   Initial release.
