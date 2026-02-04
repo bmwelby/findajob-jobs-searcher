@@ -3,6 +3,41 @@ if (!defined('ABSPATH')) exit;
 
 final class FJS_API {
 
+    public static function get_categories() : array {
+        return [
+            1 => __('Accounting & Finance Jobs', 'findajob-jobs-searcher'),
+            16 => __('Logistics & Warehouse Jobs', 'findajob-jobs-searcher'),
+            2 => __('Admin Jobs', 'findajob-jobs-searcher'),
+            17 => __('Maintenance Jobs', 'findajob-jobs-searcher'),
+            3 => __('Agriculture, Fishing & Forestry Jobs', 'findajob-jobs-searcher'),
+            18 => __('Manufacturing Jobs', 'findajob-jobs-searcher'),
+            4 => __('Consultancy Jobs', 'findajob-jobs-searcher'),
+            19 => __('Other/General Jobs', 'findajob-jobs-searcher'),
+            5 => __('Creative & Design Jobs', 'findajob-jobs-searcher'),
+            20 => __('PR, Advertising & Marketing Jobs', 'findajob-jobs-searcher'),
+            6 => __('Customer Services Jobs', 'findajob-jobs-searcher'),
+            21 => __('Property Jobs', 'findajob-jobs-searcher'),
+            7 => __('Domestic Help & Cleaning Jobs', 'findajob-jobs-searcher'),
+            22 => __('Retail Jobs', 'findajob-jobs-searcher'),
+            8 => __('Energy, Oil & Gas Jobs', 'findajob-jobs-searcher'),
+            23 => __('Sales Jobs', 'findajob-jobs-searcher'),
+            9 => __('Engineering Jobs', 'findajob-jobs-searcher'),
+            24 => __('Scientific & QA Jobs', 'findajob-jobs-searcher'),
+            10 => __('Graduate Jobs', 'findajob-jobs-searcher'),
+            25 => __('Security & Protective Services Jobs', 'findajob-jobs-searcher'),
+            11 => __('HR & Recruitment Jobs', 'findajob-jobs-searcher'),
+            26 => __('Social Work Jobs', 'findajob-jobs-searcher'),
+            12 => __('Healthcare & Nursing Jobs', 'findajob-jobs-searcher'),
+            27 => __('Education & Childcare Jobs', 'findajob-jobs-searcher'),
+            13 => __('Hospitality & Catering Jobs', 'findajob-jobs-searcher'),
+            28 => __('Trade & Construction Jobs', 'findajob-jobs-searcher'),
+            14 => __('IT Jobs', 'findajob-jobs-searcher'),
+            29 => __('Travel Jobs', 'findajob-jobs-searcher'),
+            15 => __('Legal Jobs', 'findajob-jobs-searcher'),
+            177 => __('Social Care Jobs', 'findajob-jobs-searcher'),
+        ];
+    }
+
     public static function search(array $params) : array {
         $opts = FJS_Settings::get();
 
