@@ -16,10 +16,12 @@ This plugin allows your WordPress site to search the DWP Find a Job API. It disp
 
 ## Installation
 
-1.  Upload the plugin files to the `/wp-content/plugins/findajob-jobs-searcher` directory, or install the plugin through the WordPress plugins screen directly.
-2.  Activate the plugin through the 'Plugins' screen in WordPress.
-3.  Go to the plugin settings page to configure your API ID and Key (obtained from the DWP Find a Job service).
-4.  Add the `[findajob_search]` shortcode to any page to display the search form.
+1.  Download the plugin repository as a ZIP file.
+2.  In your WordPress admin dashboard, go to **Plugins > Add New > Upload Plugin**.
+3.  Choose the downloaded ZIP file and click **Install Now**.
+4.  Activate the plugin.
+5.  Go to the plugin settings page to configure your API ID and Key (obtained from the DWP Find a Job service).
+6.  Add the `[findajob_search]` shortcode to any page to display the search form.
 
 ## Frequently Asked Questions
 
