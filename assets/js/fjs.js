@@ -108,6 +108,7 @@
       const params = {
         w: fd.get('w') || '',
         d: fd.get('d') || '',
+        cat: fd.get('cat') || '',
         cti: fd.get('cti') || '',
         cty: fd.get('cty') || '',
         q: fd.get('q') || '',
@@ -155,3 +156,4 @@
     doSearch(form, 1, false);
   });
 })();
+
