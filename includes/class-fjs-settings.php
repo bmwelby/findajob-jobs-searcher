@@ -179,7 +179,100 @@ final class FJS_Settings {
                 ?>
             </form>
             <hr />
-            <p><strong><?php echo esc_html__('Shortcode:', 'findajob-jobs-searcher'); ?></strong> <code>[findajob_search]</code></p>
+
+            <h2><?php echo esc_html__('Shortcode Generator', 'findajob-jobs-searcher'); ?></h2>
+            <div class="card" style="max-width: 800px; padding: 20px;">
+                <p class="description"><?php echo esc_html__('Use this tool to generate a custom shortcode for your pages.', 'findajob-jobs-searcher'); ?></p>
+
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><label for="fjs-gen-cat"><?php echo esc_html__('Default Category', 'findajob-jobs-searcher'); ?></label></th>
+                        <td>
+                            <select id="fjs-gen-cat" class="regular-text">
+                                <option value=""><?php echo esc_html__('None (User Selectable)', 'findajob-jobs-searcher'); ?></option>
+                                <?php foreach (FJS_API::get_categories() as $id => $name): ?>
+                                    <option value="<?php echo esc_attr((string)$id); ?>"><?php echo esc_html($name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php echo esc_html__('If selected, the search will default to this category.', 'findajob-jobs-searcher'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php echo esc_html__('Visible Fields', 'findajob-jobs-searcher'); ?></th>
+                        <td>
+                            <fieldset id="fjs-gen-fields">
+                                <?php
+                                $fields = [
+                                    'q' => 'Keywords',
+                                    'w' => 'Location',
+                                    'd' => 'Radius',
+                                    'cat' => 'Category',
+                                    'cti' => 'Hours',
+                                    'cty' => 'Contract Type',
+                                    'sf' => 'Min Salary'
+                                ];
+                                foreach ($fields as $k => $label) {
+                                    printf(
+                                        '<label style="margin-right: 15px;"><input type="checkbox" value="%s" checked /> %s</label>',
+                                        esc_attr($k),
+                                        esc_html($label)
+                                    );
+                                }
+                                ?>
+                            </fieldset>
+                            <p class="description"><?php echo esc_html__('Uncheck fields to hide them (they will use default values or be empty).', 'findajob-jobs-searcher'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="fjs-gen-url"><?php echo esc_html__('Target URL', 'findajob-jobs-searcher'); ?></label></th>
+                        <td>
+                            <input type="text" id="fjs-gen-url" class="regular-text" placeholder="/jobs-results" />
+                            <p class="description"><?php echo esc_html__('Leave empty to show results on the same page.', 'findajob-jobs-searcher'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <h3><?php echo esc_html__('Your Shortcode', 'findajob-jobs-searcher'); ?></h3>
+                <code id="fjs-gen-output" style="display: block; padding: 10px; background: #f0f0f1; font-size: 1.2em;">[findajob_search]</code>
+            </div>
+
+            <script>
+            (function() {
+                const cat = document.getElementById('fjs-gen-cat');
+                const url = document.getElementById('fjs-gen-url');
+                const output = document.getElementById('fjs-gen-output');
+                const fields = document.querySelectorAll('#fjs-gen-fields input');
+
+                function update() {
+                    let parts = ['findajob_search'];
+
+                    if (cat.value) {
+                        parts.push('cat="' + cat.value + '"');
+                    }
+
+                    if (url.value.trim()) {
+                        parts.push('url="' + url.value.trim() + '"');
+                    }
+
+                    let visible = [];
+                    let allChecked = true;
+                    fields.forEach(f => {
+                        if (f.checked) visible.push(f.value);
+                        else allChecked = false;
+                    });
+
+                    if (!allChecked) {
+                        parts.push('fields="' + visible.join(',') + '"');
+                    }
+
+                    output.innerText = '[' + parts.join(' ') + ']';
+                }
+
+                cat.addEventListener('change', update);
+                url.addEventListener('input', update);
+                fields.forEach(f => f.addEventListener('change', update));
+            })();
+            </script>
         </div>
         <?php
     }
