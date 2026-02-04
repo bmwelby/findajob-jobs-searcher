@@ -3,7 +3,7 @@
  * Plugin Name: Find a Job – Jobs Searcher
  * Description: Search Find a job API, show results, and persist each job as a standalone page with an “Apply” link.
  * Version: 1.0.0
- * Author: Ben Welby + ChatGPT
+ * Author: Ben Welby + ChatGPT + Google Jules
  * License: GPL-2.0+
  */
 
@@ -46,3 +46,4 @@ FJS_Plugin::init();
 
 register_activation_hook(__FILE__, ['FJS_Plugin', 'activate']);
 register_deactivation_hook(__FILE__, ['FJS_Plugin', 'deactivate']);
+
