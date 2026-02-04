@@ -1,0 +1,113 @@
+/* Search UI */
+.fjs__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.fjs__field { display: flex; flex-direction: column; gap: 6px; }
+.fjs__field--wide { grid-column: 1 / -1; }
+
+.fjs__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fjs__submit { padding: 10px 14px; }
+.fjs__status { min-height: 1.2em; }
+
+.fjs__cards { display: grid; gap: 12px; }
+.fjs__card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
+.fjs__title { margin: 0 0 6px 0; }
+.fjs__meta { margin: 4px 0; }
+.fjs__links { margin: 10px 0 0 0; }
+.fjs__error { color: #b00020; }
+
+/* Shared button */
+.fjs-button {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.fjs-button:hover {
+  text-decoration: underline;
+}
+
+/* Single job page */
+.fjs-single {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.fjs-single__header {
+  margin-bottom: 18px;
+}
+
+.fjs-single__title {
+  margin: 0 0 10px 0;
+}
+
+.fjs-single__company {
+  margin: 0 0 6px 0;
+}
+
+.fjs-single__meta {
+  margin: 4px 0;
+}
+
+.fjs-single__expired {
+  margin-top: 10px;
+}
+
+.fjs-single__apply {
+  margin-top: 14px;
+}
+
+.fjs-single__description {
+  margin-top: 16px;
+}
+
+/* Similar jobs widget */
+.fjs-similar {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.fjs-similar__title {
+  margin: 0 0 10px 0;
+}
+
+.fjs-similar__list {
+  margin: 0 0 0 1.2em;
+  padding: 0;
+}
+
+.fjs-similar__item {
+  margin: 8px 0;
+}
+
+.fjs-similar__link {
+  text-decoration: none;
+}
+
+.fjs-similar__link:hover {
+  text-decoration: underline;
+}
+
+.fjs-similar__meta {
+  opacity: 0.85;
+}
+
+.fjs-similar__note {
+  margin-top: 10px;
+  opacity: 0.8;
+  font-size: 0.95em;
+}

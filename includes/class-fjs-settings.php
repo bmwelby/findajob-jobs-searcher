@@ -1,0 +1,186 @@
+<?php
+if (!defined('ABSPATH')) exit;
+
+final class FJS_Settings {
+    const OPT_KEY = 'fjs_options';
+
+    public static function init() : void {
+        add_action('admin_menu', [__CLASS__, 'add_settings_page']);
+        add_action('admin_init', [__CLASS__, 'register_settings']);
+    }
+
+    public static function defaults() : array {
+        return [
+            'api_base' => 'https://findajob.dwp.gov.uk',
+            'api_id'   => '',
+            'api_key'  => '',
+            'per_page' => 10,
+            'cache_ttl_seconds' => 600, // 10 minutes
+
+            // Upstream quotas:
+            // 45 requests per 15 seconds; 600 per 10 minutes
+            'rate_limit_burst_max' => 45,
+            'rate_limit_burst_window_seconds' => 15,
+            'rate_limit_long_max' => 600,
+            'rate_limit_long_window_seconds' => 600,
+
+            // Expiry behaviour
+            'expire_to_draft' => 1,
+            'purge_after_days' => 30,  // 0 disables trashing
+        ];
+    }
+
+    public static function get() : array {
+        $opts = get_option(self::OPT_KEY, []);
+        return array_merge(self::defaults(), is_array($opts) ? $opts : []);
+    }
+
+    public static function add_settings_page() : void {
+        add_options_page(
+            __('Find a Job – Jobs Searcher', 'findajob-jobs-searcher'),
+            __('Jobs Searcher', 'findajob-jobs-searcher'),
+            'manage_options',
+            'fjs-settings',
+            [__CLASS__, 'render_settings_page']
+        );
+    }
+
+    public static function register_settings() : void {
+        register_setting(self::OPT_KEY, self::OPT_KEY, [
+            'type' => 'array',
+            'sanitize_callback' => [__CLASS__, 'sanitize'],
+            'default' => self::defaults(),
+        ]);
+
+        add_settings_section('fjs_api', __('API settings', 'findajob-jobs-searcher'), function () {
+            echo '<p>' . esc_html__('Configure your Find a job API credentials and behaviour.', 'findajob-jobs-searcher') . '</p>';
+        }, 'fjs-settings');
+
+        self::add_field('api_base', 'API base URL', 'url', 'https://findajob.dwp.gov.uk');
+        self::add_field('api_id', 'API ID', 'text', '');
+        self::add_field('api_key', 'API key', 'text', '');
+
+        add_settings_field('per_page', __('Results per page', 'findajob-jobs-searcher'), function () {
+            $o = self::get();
+            printf(
+                '<input type="number" min="1" max="50" name="%1$s[per_page]" value="%2$d" class="small-text" />',
+                esc_attr(self::OPT_KEY),
+                (int)$o['per_page']
+            );
+        }, 'fjs-settings', 'fjs_api');
+
+        add_settings_field('cache_ttl_seconds', __('Cache TTL (seconds)', 'findajob-jobs-searcher'), function () {
+            $o = self::get();
+            printf(
+                '<input type="number" min="0" max="86400" name="%1$s[cache_ttl_seconds]" value="%2$d" class="small-text" /> <span class="description">%3$s</span>',
+                esc_attr(self::OPT_KEY),
+                (int)$o['cache_ttl_seconds'],
+                esc_html__('0 disables caching. 600 is a good default.', 'findajob-jobs-searcher')
+            );
+        }, 'fjs-settings', 'fjs_api');
+
+        add_settings_field('rate_limits', __('Rate limits (upstream quota)', 'findajob-jobs-searcher'), function () {
+            $o = self::get();
+
+            echo '<p class="description">' . esc_html__('Defaults match Find a job: 45 requests/15s and 600 requests/10m.', 'findajob-jobs-searcher') . '</p>';
+
+            printf(
+                '<p><label>%s <input type="number" min="1" max="5000" name="%s[rate_limit_burst_max]" value="%d" class="small-text" /></label> ',
+                esc_html__('Burst max', 'findajob-jobs-searcher'),
+                esc_attr(self::OPT_KEY),
+                (int)$o['rate_limit_burst_max']
+            );
+            printf(
+                '<label>%s <input type="number" min="1" max="600" name="%s[rate_limit_burst_window_seconds]" value="%d" class="small-text" /></label></p>',
+                esc_html__('per (seconds)', 'findajob-jobs-searcher'),
+                esc_attr(self::OPT_KEY),
+                (int)$o['rate_limit_burst_window_seconds']
+            );
+
+            printf(
+                '<p><label>%s <input type="number" min="1" max="50000" name="%s[rate_limit_long_max]" value="%d" class="small-text" /></label> ',
+                esc_html__('Long max', 'findajob-jobs-searcher'),
+                esc_attr(self::OPT_KEY),
+                (int)$o['rate_limit_long_max']
+            );
+            printf(
+                '<label>%s <input type="number" min="10" max="86400" name="%s[rate_limit_long_window_seconds]" value="%d" class="small-text" /></label></p>',
+                esc_html__('per (seconds)', 'findajob-jobs-searcher'),
+                esc_attr(self::OPT_KEY),
+                (int)$o['rate_limit_long_window_seconds']
+            );
+        }, 'fjs-settings', 'fjs_api');
+
+        add_settings_field('expiry', __('Expiry handling', 'findajob-jobs-searcher'), function () {
+            $o = self::get();
+            printf(
+                '<label><input type="checkbox" name="%s[expire_to_draft]" value="1" %s /> %s</label><br/>',
+                esc_attr(self::OPT_KEY),
+                checked(1, (int)$o['expire_to_draft'], false),
+                esc_html__('Move expired jobs to Draft daily (based on closing date).', 'findajob-jobs-searcher')
+            );
+            printf(
+                '<label>%s <input type="number" min="0" max="3650" name="%s[purge_after_days]" value="%d" class="small-text" /></label> <span class="description">%s</span>',
+                esc_html__('Trash expired jobs after (days):', 'findajob-jobs-searcher'),
+                esc_attr(self::OPT_KEY),
+                (int)$o['purge_after_days'],
+                esc_html__('0 disables trashing.', 'findajob-jobs-searcher')
+            );
+        }, 'fjs-settings', 'fjs_api');
+    }
+
+    private static function add_field(string $key, string $label, string $type, string $placeholder) : void {
+        add_settings_field($key, __($label, 'findajob-jobs-searcher'), function () use ($key, $type, $placeholder) {
+            $o = self::get();
+            printf(
+                '<input type="%4$s" name="%1$s[%2$s]" value="%3$s" class="regular-text" placeholder="%5$s" autocomplete="off" />',
+                esc_attr(self::OPT_KEY),
+                esc_attr($key),
+                esc_attr((string)($o[$key] ?? '')),
+                esc_attr($type),
+                esc_attr($placeholder)
+            );
+        }, 'fjs-settings', 'fjs_api');
+    }
+
+    public static function sanitize($input) : array {
+        $d = self::defaults();
+        $out = [];
+
+        $out['api_base'] = isset($input['api_base']) ? esc_url_raw(trim((string)$input['api_base'])) : $d['api_base'];
+        $out['api_id']   = isset($input['api_id']) ? sanitize_text_field((string)$input['api_id']) : '';
+        $out['api_key']  = isset($input['api_key']) ? sanitize_text_field((string)$input['api_key']) : '';
+
+        $out['per_page'] = isset($input['per_page']) ? max(1, min(50, (int)$input['per_page'])) : $d['per_page'];
+        $out['cache_ttl_seconds'] = isset($input['cache_ttl_seconds']) ? max(0, (int)$input['cache_ttl_seconds']) : $d['cache_ttl_seconds'];
+
+        $out['rate_limit_burst_max'] = isset($input['rate_limit_burst_max']) ? max(1, min(5000, (int)$input['rate_limit_burst_max'])) : $d['rate_limit_burst_max'];
+        $out['rate_limit_burst_window_seconds'] = isset($input['rate_limit_burst_window_seconds']) ? max(1, min(600, (int)$input['rate_limit_burst_window_seconds'])) : $d['rate_limit_burst_window_seconds'];
+
+        $out['rate_limit_long_max'] = isset($input['rate_limit_long_max']) ? max(1, min(50000, (int)$input['rate_limit_long_max'])) : $d['rate_limit_long_max'];
+        $out['rate_limit_long_window_seconds'] = isset($input['rate_limit_long_window_seconds']) ? max(10, min(86400, (int)$input['rate_limit_long_window_seconds'])) : $d['rate_limit_long_window_seconds'];
+
+        $out['expire_to_draft'] = !empty($input['expire_to_draft']) ? 1 : 0;
+        $out['purge_after_days'] = isset($input['purge_after_days']) ? max(0, min(3650, (int)$input['purge_after_days'])) : $d['purge_after_days'];
+
+        return $out;
+    }
+
+    public static function render_settings_page() : void {
+        if (!current_user_can('manage_options')) return;
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html__('Find a Job – Jobs Searcher', 'findajob-jobs-searcher'); ?></h1>
+            <form method="post" action="options.php">
+                <?php
+                settings_fields(self::OPT_KEY);
+                do_settings_sections('fjs-settings');
+                submit_button();
+                ?>
+            </form>
+            <hr />
+            <p><strong><?php echo esc_html__('Shortcode:', 'findajob-jobs-searcher'); ?></strong> <code>[findajob_search]</code></p>
+        </div>
+        <?php
+    }
+}
