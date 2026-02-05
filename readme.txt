@@ -61,6 +61,11 @@ Simply add the shortcode `[findajob_search]` to any page or post. Check the sett
 
 == Changelog ==
 
+= 1.1.1 =
+*   Added "Quick Setup" tool to automatically create a dedicated Results Page.
+*   Added "Target Page" selector to the Shortcode Generator for easier wiring.
+*   Fixed search routing to correctly redirect to external results pages instead of loading locally.
+
 = 1.1.0 =
 *   Added Shortcode Generator in Admin Settings.
 *   Added `cat`, `fields`, and `url` attributes to the shortcode.
