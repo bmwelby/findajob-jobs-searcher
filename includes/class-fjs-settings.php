@@ -7,6 +7,22 @@ final class FJS_Settings {
     public static function init() : void {
         add_action('admin_menu', [__CLASS__, 'add_settings_page']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
+        add_action('admin_post_fjs_create_results_page', [__CLASS__, 'create_results_page']);
+    }
+
+    public static function create_results_page() : void {
+        if (!current_user_can('manage_options')) wp_die('Unauthorized');
+        check_admin_referer('fjs_create_results_page');
+
+        $page_id = wp_insert_post([
+            'post_title'   => __('Find a Job Results', 'findajob-jobs-searcher'),
+            'post_content' => '[findajob_search]',
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+        ]);
+
+        wp_redirect(add_query_arg('fjs_page_created', $page_id, menu_page_url('fjs-settings', false)));
+        exit;
     }
 
     public static function defaults() : array {
@@ -168,9 +184,29 @@ final class FJS_Settings {
 
     public static function render_settings_page() : void {
         if (!current_user_can('manage_options')) return;
+
+        if (isset($_GET['fjs_page_created'])) {
+            $created_id = (int)$_GET['fjs_page_created'];
+            $created_url = get_permalink($created_id);
+            echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(
+                esc_html__('Results page created successfully! URL: %s', 'findajob-jobs-searcher'),
+                '<a href="' . esc_url($created_url) . '" target="_blank">' . esc_html($created_url) . '</a>'
+            ) . '</p></div>';
+        }
         ?>
         <div class="wrap">
             <h1><?php echo esc_html__('Find a Job – Jobs Searcher', 'findajob-jobs-searcher'); ?></h1>
+
+            <div class="card" style="max-width: 800px; padding: 20px; margin-bottom: 20px;">
+                <h3><?php echo esc_html__('Quick Setup', 'findajob-jobs-searcher'); ?></h3>
+                <p><?php echo esc_html__('Need a page to display search results? Click the button below to automatically create a "Find a Job Results" page with the shortcode pre-installed.', 'findajob-jobs-searcher'); ?></p>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="fjs_create_results_page" />
+                    <?php wp_nonce_field('fjs_create_results_page'); ?>
+                    <?php submit_button(__('Create Results Page', 'findajob-jobs-searcher'), 'secondary', 'submit', false); ?>
+                </form>
+            </div>
+
             <form method="post" action="options.php">
                 <?php
                 settings_fields(self::OPT_KEY);
@@ -224,6 +260,18 @@ final class FJS_Settings {
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row"><label for="fjs-gen-page"><?php echo esc_html__('Target Page', 'findajob-jobs-searcher'); ?></label></th>
+                        <td>
+                            <select id="fjs-gen-page" class="regular-text">
+                                <option value=""><?php echo esc_html__('Select a page...', 'findajob-jobs-searcher'); ?></option>
+                                <?php foreach (get_pages() as $page): ?>
+                                    <option value="<?php echo esc_url(get_permalink($page->ID)); ?>"><?php echo esc_html($page->post_title); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php echo esc_html__('Select an existing page to automatically fill the Target URL.', 'findajob-jobs-searcher'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row"><label for="fjs-gen-url"><?php echo esc_html__('Target URL', 'findajob-jobs-searcher'); ?></label></th>
                         <td>
                             <input type="text" id="fjs-gen-url" class="regular-text" placeholder="/jobs-results" />
@@ -239,6 +287,7 @@ final class FJS_Settings {
             <script>
             (function() {
                 const cat = document.getElementById('fjs-gen-cat');
+                const page = document.getElementById('fjs-gen-page');
                 const url = document.getElementById('fjs-gen-url');
                 const output = document.getElementById('fjs-gen-output');
                 const fields = document.querySelectorAll('#fjs-gen-fields input');
@@ -270,6 +319,14 @@ final class FJS_Settings {
 
                 cat.addEventListener('change', update);
                 url.addEventListener('input', update);
+
+                page.addEventListener('change', function() {
+                    if (this.value) {
+                        url.value = this.value;
+                        update();
+                    }
+                });
+
                 fields.forEach(f => f.addEventListener('change', update));
             })();
             </script>

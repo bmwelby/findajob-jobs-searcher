@@ -152,6 +152,11 @@
   document.addEventListener('submit', (e) => {
     const form = e.target.closest('.fjs__form');
     if (!form) return;
+
+    if (form.dataset.remote === '1') {
+      return; // Let the browser handle the submission to the external URL
+    }
+
     e.preventDefault();
     doSearch(form, 1, false);
   });
