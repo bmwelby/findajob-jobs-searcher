@@ -95,7 +95,7 @@ final class FJS_Shortcode {
         ob_start();
         ?>
         <div class="fjs">
-            <form class="fjs__form" method="get" action="<?php echo esc_url($target_url); ?>">
+            <form class="fjs__form" method="get" action="<?php echo esc_url($target_url); ?>" <?php if (!empty($target_url)) echo 'data-remote="1"'; ?>>
 
                 <?php if (!empty($show['w'])): ?>
                 <div class="fjs__field">
